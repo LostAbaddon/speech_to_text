@@ -519,7 +519,8 @@ public class SpeechToTextPlugin: NSObject, FlutterPlugin {
         rememberedAudioCategoryOptions = self.audioSession.categoryOptions
         try self.audioSession.setCategory(
           AVAudioSession.Category.playAndRecord,
-          options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers])
+          // options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers]) // original
+          options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
         //            try self.audioSession.setMode(AVAudioSession.Mode.measurement)
         if sampleRate > 0 {
           try self.audioSession.setPreferredSampleRate(Double(sampleRate))
@@ -575,6 +576,8 @@ public class SpeechToTextPlugin: NSObject, FlutterPlugin {
       }
       self.currentTask = self.recognizer?.recognitionTask(with: currentRequest, delegate: self)
       let recordingFormat = inputNode?.outputFormat(forBus: self.busForNodeTap)
+      let mixer = AVAudioMixerNode()
+      self.audioEngine?.attach(mixer)
       var fmt: AVAudioFormat!
       #if os(iOS)
 
@@ -600,6 +603,7 @@ public class SpeechToTextPlugin: NSObject, FlutterPlugin {
       //    if ( inErrorTest ){
       //        throw SpeechToTextError.runtimeError("for testing only")
       //    }
+      self.audioEngine?.connect(inputNode!, to: mixer, format: recordingFormat)
       self.audioEngine?.prepare()
       try self.audioEngine?.start()
       if nil == listeningSound {
