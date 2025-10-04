@@ -594,15 +594,13 @@ public class SpeechToTextPlugin: NSObject, FlutterPlugin {
       #endif
       try catchExceptionAsError {
         self.inputNode?.installTap(
-          onBus: self.busForNodeTap, bufferSize: self.speechBufferSize, format: fmt
+          // onBus: self.busForNodeTap, bufferSize: self.speechBufferSize, format: fmt
+          onBus: self.busForNodeTap, bufferSize: self.speechBufferSize, format: recordingFormat
         ) { (buffer: AVAudioPCMBuffer, when: AVAudioTime) in
           currentRequest.append(buffer)
           self.updateSoundLevel(buffer: buffer)
         }
       }
-      //    if ( inErrorTest ){
-      //        throw SpeechToTextError.runtimeError("for testing only")
-      //    }
       self.audioEngine?.connect(inputNode!, to: mixer, format: recordingFormat)
       self.audioEngine?.prepare()
       try self.audioEngine?.start()
